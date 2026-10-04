@@ -16,6 +16,11 @@ import {
   Target,
   Clock
 } from 'lucide-react'
+import DonationChart from '../components/charts/DonationChart'
+import CampaignProgressChart from '../components/charts/CampaignProgressChart'
+import DonorImpactChart from '../components/charts/DonorImpactChart'
+import VolunteerChart from '../components/charts/VolunteerChart'
+import GeneralAnalytics from '../components/charts/GeneralAnalytics'
 
 const Dashboard = () => {
   const { user } = useAuth()
@@ -174,6 +179,34 @@ const Dashboard = () => {
             </div>
           ))}
         </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {user.userType === 'donor' && (
+            <>
+              <DonationChart donations={userDonations} campaigns={campaigns} />
+              <DonorImpactChart donations={userDonations} />
+            </>
+          )}
+          {user.userType === 'ngo' && (
+            <>
+              <CampaignProgressChart campaigns={userCampaigns} />
+              <VolunteerChart volunteers={volunteers} campaigns={userCampaigns} />
+            </>
+          )}
+          {user.userType === 'volunteer' && (
+            <>
+              <VolunteerChart volunteers={userVolunteerWork} campaigns={campaigns} />
+              <DonationChart donations={donations} campaigns={campaigns} />
+            </>
+          )}
+        </div>
+
+        {/* General Analytics */}
+        <div className="mb-8">
+          <GeneralAnalytics campaigns={campaigns} donations={donations} />
+        </div>
+
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Activity */}

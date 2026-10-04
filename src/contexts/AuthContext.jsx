@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { auth, signInWithGoogle, signOutUser } from '../firebase'
+import { onAuthStateChanged } from 'firebase/auth'
 
 const AuthContext = createContext()
 
@@ -15,16 +17,35 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check for stored user data on app load
-    const storedUser = localStorage.getItem('user')
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-    }
-    setLoading(false)
+    // Listen for Firebase auth state changes
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        // User is signed in
+        const userData = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email,
+          name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+          avatar: firebaseUser.photoURL || `https://ui-avatars.com/api/?name=${firebaseUser.displayName}&background=0ea5e9&color=fff`,
+          verified: true,
+          userType: 'donor', // Default type
+          createdAt: new Date().toISOString()
+        }
+        setUser(userData)
+        localStorage.setItem('user', JSON.stringify(userData))
+      } else {
+        // User is signed out
+        setUser(null)
+        localStorage.removeItem('user')
+      }
+      setLoading(false)
+    })
+
+    return () => unsubscribe()
   }, [])
 
   const login = async (email, password, userType) => {
-    // Simulate API call
+    // For demo purposes, keep the mock login
+    // In production, you would integrate with Firebase Auth email/password
     const mockUser = {
       id: Date.now(),
       email,
@@ -38,6 +59,16 @@ export const AuthProvider = ({ children }) => {
     setUser(mockUser)
     localStorage.setItem('user', JSON.stringify(mockUser))
     return { success: true, user: mockUser }
+  }
+
+  const loginWithGoogle = async () => {
+    try {
+      const result = await signInWithGoogle()
+      return result
+    } catch (error) {
+      console.error('Google sign-in error:', error)
+      return { success: false, error: error.message }
+    }
   }
 
   const register = async (userData) => {
@@ -55,9 +86,19 @@ export const AuthProvider = ({ children }) => {
     return { success: true, user: newUser }
   }
 
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem('user')
+  const logout = async () => {
+    try {
+      const result = await signOutUser()
+      if (result.success) {
+        setUser(null)
+        localStorage.removeItem('user')
+      }
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Fallback to local logout
+      setUser(null)
+      localStorage.removeItem('user')
+    }
   }
 
   const updateProfile = (updatedData) => {
@@ -69,6 +110,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     login,
+    loginWithGoogle,
     register,
     logout,
     updateProfile,

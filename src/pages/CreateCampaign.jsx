@@ -156,31 +156,25 @@ const CreateCampaign = () => {
     }
 
     setLoading(true)
-    try {
-      const campaignData = {
-        ...formData,
-        targetAmount: parseInt(formData.targetAmount),
-        targetVolunteers: parseInt(formData.targetVolunteers),
-        ngo: {
-          name: user.name,
-          id: user.id,
-          verified: user.verified
-        },
-        // Use placeholder images if none uploaded
-        images: formData.images.length > 0 ? formData.images : [
-          'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=500',
-          'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500'
-        ]
-      }
-
-      const newCampaign = createCampaign(campaignData)
-      navigate(`/campaigns/${newCampaign.id}`)
-    } catch (error) {
-      console.error('Campaign creation failed:', error)
-      alert('Failed to create campaign. Please try again.')
-    } finally {
-      setLoading(false)
+    const campaignData = {
+      ...formData,
+      targetAmount: parseInt(formData.targetAmount),
+      targetVolunteers: parseInt(formData.targetVolunteers),
+      ngo: {
+        name: user.name,
+        id: user.id,
+        verified: user.verified
+      },
+      // Use placeholder images if none uploaded
+      images: formData.images.length > 0 ? formData.images : [
+        'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=500',
+        'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500'
+      ]
     }
+
+    const newCampaign = createCampaign(campaignData)
+    navigate(`/campaigns/${newCampaign.id}`)
+    setLoading(false)
   }
 
   if (!user) {

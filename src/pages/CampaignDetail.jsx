@@ -17,8 +17,11 @@ import {
   CheckCircle,
   AlertCircle,
   Star,
-  MessageCircle
+  MessageCircle,
+  Shield
 } from 'lucide-react'
+import AadhaarVerification from '../components/verification/AadhaarVerification'
+import VerificationBadge from '../components/verification/VerificationBadge'
 
 const CampaignDetail = () => {
   const { id } = useParams()
@@ -32,6 +35,7 @@ const CampaignDetail = () => {
   const [volunteerMessage, setVolunteerMessage] = useState('')
   const [showDonationModal, setShowDonationModal] = useState(false)
   const [showVolunteerModal, setShowVolunteerModal] = useState(false)
+  const [showVerificationModal, setShowVerificationModal] = useState(false)
   const [isDonating, setIsDonating] = useState(false)
   const [isVolunteering, setIsVolunteering] = useState(false)
 
@@ -68,32 +72,42 @@ const CampaignDetail = () => {
     return diffDays > 0 ? diffDays : 0
   }
 
-  const handleDonation = async (e) => {
+  const handleDonation = (e) => {
     e.preventDefault()
     if (!user) {
       navigate('/login')
       return
     }
 
-    setIsDonating(true)
-    try {
-      await donateToCampaign(parseInt(id), {
-        donorId: user.id,
-        amount: parseInt(donationAmount),
-        donorName: user.name,
-        message: donationMessage
-      })
-      setShowDonationModal(false)
-      setDonationAmount('')
-      setDonationMessage('')
-    } catch (error) {
-      console.error('Donation failed:', error)
-    } finally {
-      setIsDonating(false)
-    }
+    // Close donation modal and show verification modal
+    setShowDonationModal(false)
+    setShowVerificationModal(true)
   }
 
-  const handleVolunteer = async (e) => {
+  const handleVerificationComplete = (verificationData) => {
+    // Process donation after verification
+    setIsDonating(true)
+    donateToCampaign(parseInt(id), {
+      donorId: user.id,
+      amount: parseInt(donationAmount),
+      donorName: user.name,
+      message: donationMessage,
+      aadhaarVerified: true,
+      paymentMethod: verificationData.payment.method,
+      verificationData: verificationData
+    })
+    setShowVerificationModal(false)
+    setDonationAmount('')
+    setDonationMessage('')
+    setIsDonating(false)
+  }
+
+  const handleVerificationCancel = () => {
+    setShowVerificationModal(false)
+    setShowDonationModal(true)
+  }
+
+  const handleVolunteer = (e) => {
     e.preventDefault()
     if (!user) {
       navigate('/login')
@@ -101,19 +115,14 @@ const CampaignDetail = () => {
     }
 
     setIsVolunteering(true)
-    try {
-      await volunteerForCampaign(parseInt(id), {
-        volunteerId: user.id,
-        volunteerName: user.name,
-        skills: ['General Support'] // This could be expanded with a skills selection
-      })
-      setShowVolunteerModal(false)
-      setVolunteerMessage('')
-    } catch (error) {
-      console.error('Volunteer registration failed:', error)
-    } finally {
-      setIsVolunteering(false)
-    }
+    volunteerForCampaign(parseInt(id), {
+      volunteerId: user.id,
+      volunteerName: user.name,
+      skills: ['General Support'] // This could be expanded with a skills selection
+    })
+    setShowVolunteerModal(false)
+    setVolunteerMessage('')
+    setIsVolunteering(false)
   }
 
   const tabs = [
@@ -279,28 +288,40 @@ const CampaignDetail = () => {
                   <div className="space-y-4">
                     {donations.length > 0 ? (
                       donations.map((donation) => (
-                        <div key={donation.id} className="flex items-center justify-between p-4 bg-secondary-50 rounded-lg">
-                          <div className="flex items-center">
-                            <div className="w-10 h-10 bg-success-100 rounded-full flex items-center justify-center mr-3">
-                              <Heart className="w-5 h-5 text-success-600" />
+                        <div key={donation.id} className="p-4 bg-secondary-50 rounded-lg">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center">
+                              <div className="w-10 h-10 bg-success-100 rounded-full flex items-center justify-center mr-3">
+                                <Heart className="w-5 h-5 text-success-600" />
+                              </div>
+                              <div>
+                                <div className="flex items-center space-x-2">
+                                  <p className="font-medium text-secondary-900">{donation.donorName}</p>
+                                  <VerificationBadge isVerified={donation.aadhaarVerified} size="sm" />
+                                </div>
+                                <p className="text-sm text-secondary-500">
+                                  {formatDate(donation.createdAt)}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-medium text-secondary-900">{donation.donorName}</p>
-                              <p className="text-sm text-secondary-500">
-                                {formatDate(donation.createdAt)}
+                            <div className="text-right">
+                              <p className="font-bold text-success-600 text-lg">
+                                ${donation.amount.toLocaleString()}
                               </p>
+                              {donation.paymentMethod && (
+                                <p className="text-xs text-secondary-500 capitalize">
+                                  via {donation.paymentMethod}
+                                </p>
+                              )}
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-secondary-900">
-                              ${donation.amount.toLocaleString()}
-                            </p>
-                            {donation.message && (
-                              <p className="text-sm text-secondary-600 italic">
+                          {donation.message && (
+                            <div className="bg-white p-3 rounded-lg border-l-4 border-success-500">
+                              <p className="text-sm text-secondary-700 italic">
                                 "{donation.message}"
                               </p>
-                            )}
-                          </div>
+                            </div>
+                          )}
                         </div>
                       ))
                     ) : (
@@ -449,45 +470,62 @@ const CampaignDetail = () => {
         {/* Donation Modal */}
         {showDonationModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-md w-full p-6">
-              <h3 className="text-lg font-semibold text-secondary-900 mb-4">Make a Donation</h3>
-              <form onSubmit={handleDonation} className="space-y-4">
+            <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-2xl">
+              <div className="flex items-center mb-6">
+                <Shield className="w-6 h-6 text-blue-600 mr-2" />
+                <h3 className="text-xl font-bold text-gray-900">Make a Donation</h3>
+              </div>
+              <form onSubmit={handleDonation} className="space-y-6">
                 <div>
-                  <label className="label">Amount ($)</label>
+                  <label className="label text-gray-700 font-semibold">Donation Amount ($)</label>
                   <input
                     type="number"
                     value={donationAmount}
                     onChange={(e) => setDonationAmount(e.target.value)}
-                    className="input-field"
+                    className="input-field text-lg"
                     placeholder="Enter amount"
                     required
                     min="1"
+                    step="1"
                   />
                 </div>
                 <div>
-                  <label className="label">Message (Optional)</label>
+                  <label className="label text-gray-700 font-semibold">Message (Optional)</label>
                   <textarea
                     value={donationMessage}
                     onChange={(e) => setDonationMessage(e.target.value)}
-                    className="input-field"
-                    rows="3"
+                    className="input-field resize-none"
+                    rows="4"
                     placeholder="Leave a message of support..."
                   />
                 </div>
-                <div className="flex space-x-3">
+                
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <div className="flex items-start">
+                    <Shield className="w-5 h-5 text-blue-600 mt-0.5 mr-2" />
+                    <div>
+                      <p className="text-sm text-blue-800 font-medium">Secure Donation Process</p>
+                      <p className="text-xs text-blue-600">
+                        Aadhaar verification and secure payment required before donation
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex space-x-4 pt-4">
                   <button
                     type="button"
                     onClick={() => setShowDonationModal(false)}
-                    className="btn-secondary flex-1"
+                    className="btn-secondary flex-1 py-3"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isDonating}
-                    className="btn-primary flex-1"
+                    className="btn-primary flex-1 py-3"
                   >
-                    {isDonating ? 'Processing...' : 'Donate'}
+                    {isDonating ? 'Processing...' : 'Proceed to Verification'}
                   </button>
                 </div>
               </form>
@@ -495,34 +533,44 @@ const CampaignDetail = () => {
           </div>
         )}
 
+        {/* Aadhaar Verification Modal */}
+        {showVerificationModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <AadhaarVerification
+              onVerificationComplete={handleVerificationComplete}
+              onCancel={handleVerificationCancel}
+            />
+          </div>
+        )}
+
         {/* Volunteer Modal */}
         {showVolunteerModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-md w-full p-6">
-              <h3 className="text-lg font-semibold text-secondary-900 mb-4">Join as Volunteer</h3>
-              <form onSubmit={handleVolunteer} className="space-y-4">
+            <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-2xl">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">Join as Volunteer</h3>
+              <form onSubmit={handleVolunteer} className="space-y-6">
                 <div>
-                  <label className="label">Message (Optional)</label>
+                  <label className="label text-gray-700 font-semibold">Message (Optional)</label>
                   <textarea
                     value={volunteerMessage}
                     onChange={(e) => setVolunteerMessage(e.target.value)}
-                    className="input-field"
-                    rows="3"
+                    className="input-field resize-none"
+                    rows="4"
                     placeholder="Tell us why you want to volunteer..."
                   />
                 </div>
-                <div className="flex space-x-3">
+                <div className="flex space-x-4 pt-4">
                   <button
                     type="button"
                     onClick={() => setShowVolunteerModal(false)}
-                    className="btn-secondary flex-1"
+                    className="btn-secondary flex-1 py-3"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isVolunteering}
-                    className="btn-primary flex-1"
+                    className="btn-primary flex-1 py-3"
                   >
                     {isVolunteering ? 'Joining...' : 'Join as Volunteer'}
                   </button>

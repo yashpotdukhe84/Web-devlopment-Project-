@@ -68,45 +68,45 @@ const Register = () => {
       label: 'NGO',
       description: 'Create and manage campaigns',
       icon: Building2,
-      color: 'border-primary-200 bg-primary-50 text-primary-700'
+      color: 'border-neon-blue bg-glass-primary text-neon-blue'
     },
     {
       value: 'donor',
       label: 'Donor',
       description: 'Support causes you care about',
       icon: Heart,
-      color: 'border-success-200 bg-success-50 text-success-700'
+      color: 'border-neon-green bg-glass-accent text-neon-green'
     },
     {
       value: 'volunteer',
       label: 'Volunteer',
       description: 'Find opportunities to help',
       icon: Users,
-      color: 'border-warning-200 bg-warning-50 text-warning-700'
+      color: 'border-neon-orange bg-glass-white text-neon-orange'
     }
   ]
 
   return (
-    <div className="min-h-screen bg-secondary-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-dark-950 via-dark-900 to-dark-800 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center">
+          <div className="w-12 h-12 bg-gradient-to-r from-neon-blue to-neon-purple rounded-lg flex items-center justify-center">
             <Heart className="w-7 h-7 text-white" />
           </div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-bold text-secondary-900">
+        <h2 className="mt-6 text-center text-3xl font-bold text-white">
           Create your account
         </h2>
-        <p className="mt-2 text-center text-sm text-secondary-600">
+        <p className="mt-2 text-center text-sm text-white/70">
           Or{' '}
-          <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
+          <Link to="/login" className="font-medium text-neon-blue hover:text-neon-purple">
             sign in to your existing account
           </Link>
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="card py-8 px-4 sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* User Type Selection */}
             <div>
@@ -115,10 +115,10 @@ const Register = () => {
                 {userTypes.map((type) => (
                   <label
                     key={type.value}
-                    className={`relative flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                    className={`relative flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all duration-300 ${
                       formData.userType === type.value
                         ? type.color
-                        : 'border-secondary-200 hover:border-secondary-300'
+                        : 'border-white/20 hover:border-white/40 bg-glass-white'
                     }`}
                   >
                     <input
@@ -322,7 +322,7 @@ const Register = () => {
 
             {/* Error Message */}
             {error && (
-              <div className="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded-lg">
+              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg">
                 {error}
               </div>
             )}
@@ -334,15 +334,15 @@ const Register = () => {
                 name="terms"
                 type="checkbox"
                 required
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300 rounded"
+                className="h-4 w-4 text-neon-blue focus:ring-neon-blue border-white/30 rounded bg-glass-black"
               />
-              <label htmlFor="terms" className="ml-2 block text-sm text-secondary-900">
+              <label htmlFor="terms" className="ml-2 block text-sm text-white/80">
                 I agree to the{' '}
-                <a href="#" className="text-primary-600 hover:text-primary-500">
+                <a href="#" className="text-neon-blue hover:text-neon-purple">
                   Terms of Service
                 </a>{' '}
                 and{' '}
-                <a href="#" className="text-primary-600 hover:text-primary-500">
+                <a href="#" className="text-neon-blue hover:text-neon-purple">
                   Privacy Policy
                 </a>
               </label>
