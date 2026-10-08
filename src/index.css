@@ -1,0 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-white/20;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-gradient-to-br from-dark-950 via-dark-900 to-dark-800 text-white font-sans;
+    background-attachment: fixed;
+    overflow-x: hidden;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-dark-800;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gradient-to-b from-neon-blue to-neon-purple rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply from-neon-purple to-neon-pink;
+  }
+}
+
+@layer components {
+  /* Modern Button Styles */
+  .btn-primary {
+    @apply relative overflow-hidden bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink text-white font-medium py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-glow-lg active:scale-95;
+    background-size: 200% 200%;
+    animation: gradient-x 3s ease infinite;
+  }
+  
+  .btn-primary::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 transition-opacity duration-300;
+    transform: translateX(-100%);
+  }
+  
+  .btn-primary:hover::before {
+    @apply opacity-20;
+    transform: translateX(100%);
+  }
+  
+  .btn-secondary {
+    @apply relative bg-gray-200 border border-gray-300 text-gray-700 font-medium py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:bg-gray-300 hover:border-gray-400 active:scale-95;
+  }
+  
+  .btn-success {
+    @apply relative overflow-hidden bg-gradient-to-r from-neon-green to-neon-blue text-white font-medium py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-glow active:scale-95;
+  }
+  
+  .btn-danger {
+    @apply relative overflow-hidden bg-gradient-to-r from-red-500 to-pink-500 text-white font-medium py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-glow active:scale-95;
+  }
+  
+  /* Glass Morphism Cards */
+  .card {
+    @apply relative bg-glass-white backdrop-blur-md border border-white/10 rounded-2xl p-6 transition-all duration-300 hover:bg-glass-primary hover:border-neon-blue/30 hover:shadow-glow;
+  }
+  
+  .card::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-2xl pointer-events-none;
+  }
+  
+  /* Modern Input Fields */
+  .input-field {
+    @apply w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300;
+  }
+  
+  .input-field:focus {
+    @apply shadow-lg;
+  }
+  
+  .label {
+    @apply block text-sm font-medium text-gray-700 mb-2;
+  }
+  
+  /* Animated Background Elements */
+  .bg-animated {
+    background: linear-gradient(-45deg, #0f172a, #1e293b, #334155, #475569);
+    background-size: 400% 400%;
+    animation: gradient-xy 15s ease infinite;
+  }
+  
+  /* Floating Elements */
+  .float-element {
+    @apply animate-float;
+  }
+  
+  /* Glowing Text */
+  .text-glow {
+    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+  }
+  
+  /* Cyber Grid Background */
+  .cyber-grid {
+    background-image: 
+      linear-gradient(rgba(0, 245, 255, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 245, 255, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+  
+  /* Neon Border */
+  .border-neon {
+    @apply border-2 border-neon-blue shadow-glow;
+  }
+  
+  /* Hover Effects */
+  .hover-lift {
+    @apply transition-transform duration-300 hover:-translate-y-2;
+  }
+  
+  .hover-glow {
+    @apply transition-all duration-300 hover:shadow-glow hover:scale-105;
+  }
+  
+  /* Loading Animation */
+  .loading-dots {
+    @apply inline-flex space-x-1;
+  }
+  
+  .loading-dots div {
+    @apply w-2 h-2 bg-neon-blue rounded-full animate-bounce;
+  }
+  
+  .loading-dots div:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  
+  .loading-dots div:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+}
+
